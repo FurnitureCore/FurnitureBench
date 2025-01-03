@@ -22,7 +22,7 @@ class Texture {
 		this.uv_width = Project ? Project.texture_width : 16;
 		this.uv_height = Project ? Project.texture_height : 16;
 		this.currentFrame = 0;
-		this.saved = true;
+		this._saved = true;
 		this.layers = [];
 		this.layers_enabled = false;
 		this.selected_layer = null;
@@ -306,6 +306,13 @@ class Texture {
 				}
 			}
 		}
+	}
+	// saved always returns true when Project.format.id is furniture_core
+	set saved(value) {
+		this._saved = value;
+	}
+	get saved() {
+		return this._saved || Project.format.id == 'furniture_core';
 	}
 	get frameCount() {
 		if (Format.animated_textures && this.ratio !== (this.getUVWidth() / this.getUVHeight())) {
