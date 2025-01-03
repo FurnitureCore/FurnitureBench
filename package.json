@@ -117,6 +117,7 @@
 		"bundle": "webpack --config webpack.config.js",
 		"bundle-watch": "webpack --config webpack.config.js --watch",
 		"dev": "electron .",
+		"debug": "electron --inspect .",
 		"dist": "electron-builder",
 		"beta": "electron-builder --windows portable",
 		"publish-windows": "npm run bundle && electron-builder -w --publish=onTagOrDraft && node ./scripts/rename_portable.js && electron-builder --windows portable --publish=onTagOrDraft",

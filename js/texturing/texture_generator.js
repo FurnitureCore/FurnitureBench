@@ -131,6 +131,10 @@ const TextureGenerator = {
 			if (typeof after === 'function') {
 				after(texture)
 			}
+			// prevent saving of furniture_core textures
+			if (Project.format.id == 'furniture_core') {
+				texture.saved = true;
+			}
 			if (options.type == 'blank') {
 				Undo.finishEdit('Create blank texture', {textures: [texture], selected_texture: true, bitmap: true})
 			}

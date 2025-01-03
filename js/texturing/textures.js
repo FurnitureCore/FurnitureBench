@@ -451,6 +451,15 @@ class Texture {
 		this.load_callback = cb;
 		return this;
 	}
+	fromImageBase64(path, base64) {
+		this.name = pathToName(path, true);
+		this.folder = path.split(osfs).slice(0, -1).join(osfs);
+		this.source = 'data:image/png;base64,' + base64;
+		this.internal = true;
+		this.saved = true;
+		this.load();
+		return this;
+	}
 	fromJavaLink(link, path_array) {
 		if (typeof link !== 'string' || (link.substr(0, 1) === '#' && !link.includes('/'))) {
 			this.load();

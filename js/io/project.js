@@ -66,6 +66,12 @@ class ModelProject {
 		this.timeline_animators = [];
 		this.display_settings = {};
 
+		// furniture core properties (default values)
+		this.display_name = '';
+		this.can_rotate = true;
+		this.can_hanging = false;
+		this.functionality = Functionalities.none;
+
 		ModelProject.all.push(this);
 
 		ProjectData[this.uuid] = {
@@ -1022,6 +1028,37 @@ BARS.defineActions(function() {
 				min: 1
 			};
 
+			// add further core properties (define the project dialog)
+			if (Project.format.id == 'furniture_core') {
+				Object.assign(form, {
+					'furniture_core_property': '_',
+					display_name: {
+						label: 'dialog.project.display_name', 
+						type: 'text',
+						value: Project.display_name
+					},
+					can_rotate: {
+						label: 'dialog.project.can_rotate', 
+						type: 'checkbox', 
+						value: Project.can_rotate
+					},
+					can_hanging: {
+						label: 'dialog.project.can_hanging', 
+						type: 'checkbox', 
+						value: Project.can_hanging
+					},
+					'functionality_settings': '_',
+					functionality: {
+						label: 'dialog.project.functionality', 
+						type: 'select', 
+						value: Project.functionality.id, 
+						options: FunctionalityOptions
+					},
+				});
+				addAllFuntionalityFroms(form);
+			}
+			
+
 			var dialog = new Dialog({
 				id: 'project',
 				title: 'dialog.project.title',
@@ -1084,11 +1121,36 @@ BARS.defineActions(function() {
 						updateSelection()
 					}
 					
+					// verify name
+					if (!/^[a-z0-9._-]+$/.test(formResult.name)) {
+						console.log('Invalid name', formResult.name)
+						Blockbench.showMessageBox(
+							{
+								title: tl('dialog.project.invalid_name.title'),
+								message: tl('dialog.project.invalid_name.message'),
+								buttons: [tl('dialog.ok')],
+							},
+							function() {
+								dialog.show();
+							}
+						);
+						return;
+					}
+
 					for (var key in ModelProject.properties) {
 						ModelProject.properties[key].merge(Project, formResult);
 					}
 					Project.name = Project.name.trim();
 					Project.model_identifier = Project.model_identifier.trim();
+
+					// furniture core properties (save properties)
+					if (Project.format.id == 'furniture_core') {
+						Project.display_name = formResult.display_name;
+						Project.can_rotate = formResult.can_rotate;
+						Project.can_hanging = formResult.can_hanging;
+						Project.functionality = Functionalities[formResult.functionality];
+						Project.functionality.getFromResult(formResult)
+					}
 
 					if (save) {
 						Undo.finishEdit('Change project UV settings')

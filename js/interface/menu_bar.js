@@ -440,6 +440,8 @@ const MenuBar = {
 			'convert_to_mesh',
 			'auto_set_cullfaces',
 			'remove_blank_faces',
+			new MenuSeparator('furniture_core'),
+			'import_resource_pack',
 		], {icon: 'handyman'})
 		MenuBar.menus.filter = MenuBar.menus.tools;
 

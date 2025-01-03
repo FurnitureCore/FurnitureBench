@@ -75,6 +75,12 @@ function loadModelFile(file) {
 		}
 	}
 
+	// Zip
+	for (let id in Codecs) {
+		let success = loadIfCompatible(Codecs[id], 'zip', file.content);
+		if (success) return;
+	}
+
 	// Image
 	for (let id in Codecs) {
 		let success = loadIfCompatible(Codecs[id], 'image', file.content);
@@ -647,7 +653,11 @@ BARS.defineActions(function() {
 				readtype: file => {
 					if (typeof file == 'string' && file.search(/\.png$/i) > 0) {
 						return 'image'
-					}},
+					}
+					if (file.search(/\.zip$/i) > 0) {
+						return 'binary'
+					}
+				},
 				startpath,
 				multiple: true
 			}, function(files) {
