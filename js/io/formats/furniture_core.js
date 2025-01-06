@@ -294,12 +294,15 @@ function exportPropertiesFile (options) {
  * @param {string} [properties.function.type] - The type of functionality.
  */
 function importPropertiesFile (properties) {
-	console.log(properties)
-	Project.display_name = properties.display_name || Project.display_name
-	Project.can_rotate = properties.can_rotate || Project.can_rotate
-	Project.can_hanging = properties.can_hanging || Project.can_hanging
+	if (!properties) {
+		Project.functionality = Functionalities.none;
+		return;
+	}
+	Project.display_name = properties.display_name ? Project.display_name : ''
+	Project.can_rotate = properties.can_rotate ? Project.can_rotate : true
+	Project.can_hanging = properties.can_hanging ? Project.can_hanging : true
 
-	functionality = properties.function || Functionalities.none.json()
+	const functionality = properties.function ? properties.function : Functionalities.none.json() 
 	for (let key in Functionalities) {
         if (functionality.type === key) {
             Project.functionality = Functionalities[key];
@@ -412,7 +415,7 @@ var codec = new Codec('furniture_core', {
 
 		// load model and properties
 		var model = autoParseJSON(await zip.file('model.json').async('string'))
-		var properties = autoParseJSON(await zip.file('properties.json').async('string') || '{}')
+		const properties = zip.file('properties.json') ? autoParseJSON(await zip.file('properties.json').async('string')) : 0;
 		console.log(model, properties)
 
 		this.dispatchEvent('parse', {model});
@@ -461,7 +464,11 @@ var codec = new Codec('furniture_core', {
 					if (link.startsWith('#') && texture_arr[link.substring(1)]) {
 						link = texture_arr[link.substring(1)];
 					}
-					let img = await zip.file(link + '.png').async('base64')
+					texture_path = link + '.png'
+					if (!zip.file(texture_path)) {
+						continue;
+					}
+					let img = await zip.file(texture_path).async('base64')
 					let texture = new Texture({id: key}).fromImageBase64(link, img).add();
 					texture_paths[texture_arr[key].replace(/^minecraft:/, '')] = texture_ids[key] = texture;
 					new_textures.push(texture);
@@ -675,7 +682,7 @@ var codec = new Codec('furniture_core', {
 			Project.export_path = file.path;
 		}
 
-		this.parse(zipFileContent, file.path, false)
+		await this.parse(zipFileContent, file.path, false)
 
 		if (file.path && isApp && this.remember && !file.no_file ) {
 			loadDataFromModelMemory();
